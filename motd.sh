@@ -19,29 +19,25 @@ pl () {
 
 #
 # DISK
-# "Disk Usage....: You're using 2M in /home/mewbie"
-#
+# ] You're using 2M in /home/mewbie
 disk_usage=$(df -h / | awk 'END{print "You are using " $3 "/" $2 "(" $5 ") in " $6}')
 OUTPUT_DISK=$disk_usage
 HEADLINE_DISK="Disk Usage"
 #
 # LASTLOGIN
-# "Last Login....: Mon Jun 14 02:59:55 from 123.456.789.0"
-#
+# ] Mon Jun 14 02:59:55 from 123.456.789.0
 lastlog=$(lastlogin $(whoami) | awk -F '[[:space:]][[:space:]]+' '{print $4 " from " $3}')
 HEADLINE_LASTLOG=""
 OUTPUT_LASTLOG=$lastlog
 #
 # LOAD
 # ] 0,34 (1 minute) 0,35 (5 minutes) 0,34 (15 minutes) / 8 cores
-#
 load=$(echo ${uptime_command} $(sysctl -n hw.ncpu)| awk -F 'load averages: ' '{print $2}' | awk '{print $1 " (1 minute) " $2 " (5 minutes) " $3 " (15 minutes) / " $4 " cores"}')
 HEADLINE_LOAD=""
 OUTPUT_LOAD=$load
 #
 # LOGINS
 # ] There are currently 4 users users logged in and 1 users using ssh
-#
 term_users=$(echo ${uptime_command} | cut -d',' -f3 | cut -c 2-)
 ssh_users=$(ps ax | grep -Ec 'sshd: .*@.* \(sshd\)')
 HEADLINE_LOGINS=""
@@ -69,7 +65,6 @@ OUTPUT_MEMORY="Total: ${mem_total_mb}MB [100%]  Used: ${mem_used_mb}MB [${mem_us
 #
 # PROCESSES
 # ] 36 running of which 1 is yours
-#
 running_proc=$(ps xo state | sed 1d | grep -cv 'I')
 running_proc_users=$(ps xo state -U stan | sed 1d | grep -cv 'I')
 HEADLINE_PROCESSES=""
@@ -77,7 +72,6 @@ OUTPUT_PROCESSES="${running_proc} running of which ${running_proc_users} $(pl $r
 #
 # UPTIME
 # ] 17 days 20 hours 10 minutes
-#
 uptime=$(echo ${uptime_command} | cut -d',' -f1 -f2 | sed -r 's/^([0-9]+:[0-9]+)[ ]+up[ ]+([0-9]+)[ ]+days,[ ]+([0-9]+):([0-9]+).*$/\2 days \3 hours \4 minutes/g')
 HEADLINE_UPTIME=""
 OUTPUT_UPTIME=$uptime
@@ -89,10 +83,17 @@ OUTPUT_WEATHER=""
 #
 # TEMPERATURE
 # ] Core0: 91.4°F  M/B: 98.6°F  CPU: 89.6°F  Disk: 98°F
+# ] Core0: 49,0C  Disk [ada0]: 33 (Min/Max 25/50) [ada1]: 30 (Min/Max 25/36)
+disk_temp="ada0 ada1"
+temp_hdd=""
+for disk in $disk_temp
+do
+  temp_hdd="${temp_hdd} [${disk}]: $(smartctl -A /dev/${disk}|grep -i Temperature_Celsius | awk -F '[[:space:]][[:space:]]+' '{print $9}')"
+done
+
 temp_core=$(sysctl -n dev.cpu.0.temperature)
-temp_hdd=$(smartctl -A /dev/ada0|grep -i Temperature_Celsius | awk -F '[[:space:]][[:space:]]+' '{print $9}')
 HEADLINE_TEMPERATURE="Temperature"
-OUTPUT_TEMPERATURE="Core0: ${temp_core}  Disk [ada0]: ${temp_hdd} [ada1]: ____"
+OUTPUT_TEMPERATURE="Core0: ${temp_core}  Disk${temp_hdd}"
 
 #
 # TEMPLATE
