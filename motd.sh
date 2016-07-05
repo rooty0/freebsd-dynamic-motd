@@ -11,10 +11,33 @@ ACTIVE_PLUGINS="DISK LASTLOG" # not implemented
 # Reuse output
 uptime_command=$(uptime)
 
-#
+# Core functions
 pl () {
   # input integer, single word,
   [ $1 -eq 1 ] && echo $3 || echo $2
+}
+
+# Centralize
+echo_centralize () {
+  COLUMNS=$(tput cols)
+  IFS=$'\n'
+  max_line_length=0
+  for line in ${OUTPUT}:
+  do
+    [ ${#line} -gt $max_line_length ] && max_line_length=${#line}
+  done
+
+  COLUMNS_HALF=$(($COLUMNS / 2 - $max_line_length / 2 ))
+  SPACER=""
+
+  for ((x = 3; x < ${COLUMNS_HALF}; x++)); do
+    SPACER="${SPACER} "
+  done
+
+  for line in ${OUTPUT}
+  do
+    echo $SPACER$line
+  done
 }
 
 #
