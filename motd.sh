@@ -4,8 +4,8 @@
 # http://www.mewbies.com/how_to_customize_your_console_login_message_tutorial.htm
 
 # Settings
-#DOTS_AFTER_LONGEST_WORD=3 # not implemented
-#CENTRALIZED_OUTPUT='yes' # not implemented
+DOTS_AFTER_LONGEST_WORD=3 # not implemented
+CENTRALIZED_OUTPUT='yes' # not implemented
 ACTIVE_PLUGINS="DISK LASTLOG" # not implemented
 
 # Reuse output
@@ -30,9 +30,15 @@ echo_centralize () {
   COLUMNS_HALF=$(($COLUMNS / 2 - $max_line_length / 2 ))
   SPACER=""
 
-  for ((x = 3; x < ${COLUMNS_HALF}; x++)); do
+  #for ((x = 3; x < ${COLUMNS_HALF}; x++)); do
+  #  SPACER="${SPACER} "
+  #done
+  set -x
+  print $(seq 3 ${COLUMNS_HALF})
+  for i in $(seq 3 ${COLUMNS_HALF}); do
     SPACER="${SPACER} "
   done
+  set +x
 
   for line in ${OUTPUT}
   do
